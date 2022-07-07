@@ -6,6 +6,24 @@ import crypto from 'crypto';
 import fs from 'fs';
 import yaml from 'js-yaml';
 var app = express();
+
+// error catcher 9000
+if (!fs.existsSync('./config/config.yml')) {
+    console.log('Process terminating: File not found');
+    console.log(chalk.italic('./config/config.yml') + ' is not present!')
+    process.exit();
+}
+if (!fs.existsSync('./config/key.pem')) {
+    console.log('Process terminating: File not found');
+    console.log(chalk.italic('./config/key.pem') + ' is not present!')
+    process.exit();
+}
+if (!fs.existsSync('./config/cert.pem')) {
+    console.log('Process terminating: File not found');
+    console.log(chalk.italic('./config/cert.pem') + ' is not present!')
+    process.exit();
+}
+
 // load config
 console.log('Loading config @ ./config/config.yml');
 var config = yaml.load(fs.readFileSync('./config/config.yml', 'utf8'));
@@ -16,7 +34,7 @@ var hash = crypto.createHash('md5').update(config.managePassword).digest('hex');
 // simpl logger
 function log(loc, address, code, agent) {
     if (config.logging == true && config.simple == false) {
-        console.log(chalk.bgWhite(address) + ' ' + chalk.yellow(code) + ' ' + loc + ' ' + chalk.italic(chalk.gray('(' + agent + ')')));
+        console.log(chalk.inverse(address) + ' ' + chalk.yellow(code) + ' ' + loc + ' ' + chalk.italic(chalk.gray('(' + agent + ')')));
     } else if (config.logging == true && config.simple == true) {
         console.log(chalk.gray(address) +  ' ' + loc);
     } else if (config.logging == false) {
@@ -25,15 +43,14 @@ function log(loc, address, code, agent) {
 }
 
 // routes
+// I know there's probably a better way to set the status code before sending a response
+// Shove that into my to-do list
 app.get('/', (req, res) => {
     res.statusCode = 200;
     var code = 200;
     res.setHeader("Content-Type", "text/plain");
     res.send('Hello world!');
-    var address = req.ip;
-    var mount = req.path;
-    var agent = req.get('User-Agent');
-    log(mount, address, code, agent);
+    log(req.path, req.ip, code, req.get('User-Agent'));
 });
 app.get('/manage', (req, res) => {
     res.setHeader("Content-Type", "text/plain");
@@ -52,38 +69,22 @@ app.get('/manage', (req, res) => {
         var code = 401;
         res.statusCode = 401;
     }
-    var address = req.ip;
-    var mount = req.path;
-    var agent = req.get('User-Agent');
-    log(mount, address, code, agent);
-});
-app.get('/favicon.ico', (req, res) => {
-    res.statusCode = 200;
-    var code = 200;
-    res.setHeader("Content-Type", "image/x-icon");
-    res.send(fs.readFileSync('./favicon.ico'));
-    var address = req.ip;
-    var mount = req.path;
-    var agent = req.get('User-Agent');
-    log(mount, address, code, agent);
+    log(req.path, req.ip, code, req.get('User-Agent'));
 });
 app.get('*', (req, res) => {
     res.statusCode = 404;
+    var code = 404;
     res.setHeader("Content-Type", "text/plain");
     res.send('404 Not found');
-    var address = req.ip;
-    var code = 404;
-    var mount = req.path;
-    var agent = req.get('User-Agent');
-    log(mount, address, code, agent);
+    log(req.path, req.ip, code, req.get('User-Agent'));
 });
 
 // https.listen on config port
 https.createServer(
     {key: fs.readFileSync('./config/key.pem'),cert: fs.readFileSync('./config/cert.pem')},app
     ).listen(config.port, config.address);
-console.log('Server listening on ' + chalk.bgWhite(config.address + ':' + config.port + ''));
-// log config
+console.log('Server listening on ' + chalk.inverse(config.address + ':' + config.port));
+// log config status
 if (config.logging == false) {
     console.log('Logging is disabled');
 } else {
