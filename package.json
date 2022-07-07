@@ -2,6 +2,7 @@
   "type":"module",
   "name":"fooExpressAPI",
   "version":"4.0.0",
+  "repository": "ZombieBrine13092/fooExpressAPI",
   "dependencies": {
     "chalk": "^5.0.1",
     "express": "^4.18.1",
