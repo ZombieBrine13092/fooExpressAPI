@@ -1,10 +1,15 @@
+# Version 4.0 config
+version: 4.0
 # Basic server configuration
 port: 443
 address: 127.0.0.1
 logging: true
-simple: false
 managePassword: changeme
-
+# TLS cert & key paths. Quotes are necessary.
+certPath: './config/cert.pem'
+keyPath: './config/key.pem'
 # QoL improvements below this line
+simplifiedLogging: false
 hideGetFavicon: false
-hideQueryString: false
+hideQueryString: true
+clearConsoleOnStart: true
