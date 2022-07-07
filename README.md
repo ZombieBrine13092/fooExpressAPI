@@ -15,8 +15,13 @@ put fullchain.pem and privkey.pem into ./config/,
 then rename them to the filenames in the config or modify the config to point to the files certbot produced.
 
 ## running that shiz
+on first run, install the dependencies
 ```
-npm install && npm run start
+npm install
+```
+then run
+```
+npm run start
 ```
 
 ## how do i config????
