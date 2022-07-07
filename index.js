@@ -36,7 +36,7 @@ if (!fs.existsSync(config.keyPath)) {
 }
 if (!fs.existsSync(config.certPath)) {
     console.log('Process terminating: File not found');
-    console.log(chalk.italic(certPath) + ' is not present!')
+    console.log(chalk.italic(config.certPath) + ' is not present!')
     console.log('Change the config to properly define the location of this file.');
     process.exit();
 }
