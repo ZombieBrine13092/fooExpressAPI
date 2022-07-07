@@ -3,6 +3,8 @@ working express API to clone
 
 you have no reason to use it
 
+view the API usage [here](https://github.com/ZombieBrine13092/fooExpressAPI/blob/main/api.md)
+
 ## getting a cert for https
 [Certbot](https://certbot.eff.org/)
 
