@@ -18,6 +18,7 @@ but yknow /shrug
 
 ## running that shiz
 ```
+node install && node .\index.js
 node .\index.js
 ```
 
