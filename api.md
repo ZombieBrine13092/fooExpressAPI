@@ -4,22 +4,22 @@ While this API is mostly for my own personal use, I thought it could be useful t
 The content type of any response will be `text/plain` unless specified.
 
 ## /
-Returns a JSON block with the server status.
-  Will always be the same unless the server is.. well, offline.
+Returns a JSON block with the server status.\
+Will always be the same unless the server is.. well, offline.
 
-Request
+Example Request:
 ```
 /
 ```
-Response
+Example Response:
 ```
 {"status":"OK"}
 ```
 
 ## /ip
-Returns the address of the IPv4 host that made the request.
-  Query `?type=` to specify the type of response.
-  This can be either `json` or `plaintext`.
+Returns the address of the IPv4 host that made the request.\
+Query `?type=` to specify the type of response.\
+The value can be either `json` or `plaintext`.
 
 Example Request
 ```
@@ -42,5 +42,5 @@ Example Response
 foobar management page
 ```
 
-The default passphrase as defined in the config is `changeme`.
-  The default response as defined in the script is `foobar management page`.
+The default passphrase as defined in the config is `changeme`. \
+The default response as defined in the script is `foobar management page`.
