@@ -1,5 +1,10 @@
+# Basic server configuration
 port: 443
 address: 127.0.0.1
 logging: true
 simple: false
 managePassword: changeme
+
+# QoL improvements below this line
+hideGetFavicon: false
+hideQueryString: false
