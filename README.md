@@ -6,19 +6,17 @@ you have no reason to use it
 ## getting a cert for https
 [Certbot](https://certbot.eff.org/)
 
-give the CLI app the domain, email, select a temporary webserver,
+Give the CLI app the domain, email, select a temporary webserver,
 
-then put fullchain.pem and privkey.pem into /config/
+ensure that you can access the temporary webserver via the domain on port 443,
 
-**Rename fullchain.pem to cert.pem
-and privkey.pem to key.pem**
+put fullchain.pem and privkey.pem into ./config/,
 
-i may fix this using the config later so it won't be so strict with filenames
-but yknow /shrug
+then rename them to the filenames in the config or modify the config to point to the files certbot produced.
 
 ## running that shiz
 ```
-node install && node .\index.js
+npm install && npm run start
 ```
 
 ## how do i config????
