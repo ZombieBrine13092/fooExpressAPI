@@ -28,30 +28,26 @@ if (!fs.existsSync(config.certPath) && !fs.existsSync(config.keyPath)) {
     console.log('Change the config to properly define the location of these files.');
     process.exit();
 }
-if (!fs.existsSync(config.keyPath)) {
+if (!fs.existsSync(config.keyPath)) { // check to make sure key for https exists
     console.log('Process terminating: File not found');
     console.log(chalk.italic(config.keyPath) + ' is not present!')
     console.log('Change the config to properly define the location of this file.');
     process.exit();
 }
-if (!fs.existsSync(config.certPath)) {
+if (!fs.existsSync(config.certPath)) { // check to make sure cert for https exists
     console.log('Process terminating: File not found');
     console.log(chalk.italic(config.certPath) + ' is not present!')
     console.log('Change the config to properly define the location of this file.');
     process.exit();
 }
-if (config.version) {
+if (config.version !== version) { // compare config version and script version
     console.log('WARNING: Config version does not match script version!');
-} else {
-    console.log('Process terminating: Could not determine config version');
-    console.log('This could be caused by an older config that does not specify a version.');
-    process.exit();
 }
 
 if (config.clearConsoleOnStart == true) {console.clear();} // clear console if config says so
 
 // hash up the management password
-var hash = crypto.createHash('md5').update(config.managePassword).digest('hex');
+var passHash = crypto.createHash('md5').update(config.managePassword).digest('hex');
 
 // logger functions
 // works only when logging is set to true in the config
@@ -102,10 +98,11 @@ app.get('/ip', (req, res) => {
 });
 app.get('/manage', (req, res) => {
     if (req.query.pass !== undefined) {
-        if (crypto.createHash('md5').update(req.query.pass).digest('hex') == hash) {
+        if (crypto.createHash('md5').update(req.query.pass).digest('hex') == passHash) {
             res.status(200).setHeader("Content-Type", "text/plain").send('foobar management page');
             var code = 200;
             // do management stuff
+            // this one is just a proof of concept
         } else {
             res.sendStatus(400);
             var code = 400;
