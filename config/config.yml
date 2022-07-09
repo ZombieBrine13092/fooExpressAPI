@@ -1,13 +1,10 @@
 # Version 5.0 config
 version: 5.0
 # Basic server configuration
-port: 443
+port: 80
 address: 127.0.0.1
 logging: true
 managePassword: changeme
-# TLS cert & key paths. Quotes are necessary.
-certPath: './config/cert.pem'
-keyPath: './config/key.pem'
 # QoL improvements below this line
 hideIpAddress: true
 hideUserAgent: true
