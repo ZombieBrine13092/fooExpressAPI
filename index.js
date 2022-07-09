@@ -1,6 +1,6 @@
 // import shiz
 import express from 'express';
-import https from 'https';
+import http from 'http';
 import chalk from 'chalk';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -26,24 +26,6 @@ if (config.clearConsoleOnStart == true) {console.clear()} // clear console on st
 // fatal error catcher
 if (config.version !== version) { // compare config version and script version
     msgLog('warn', 'Config version does not match script version')
-}
-if (!fs.existsSync(config.certPath) && !fs.existsSync(config.keyPath)) {
-    msgLog('fatal', 'Files not found');
-    msgLog('fatal', chalk.italic(config.keyPath) + ' and ' + chalk.italic(config.certPath) + ' are not present!');
-    msgLog('fatal', 'Change the config to properly define the location of these files');
-    process.exit();
-}
-if (!fs.existsSync(config.keyPath)) { // check to make sure key exists
-    msgLog('fatal', 'File not found');
-    msgLog('fatal', chalk.italic(config.keyPath) + ' is not present')
-    msgLog('fatal', 'Change the config to properly define the location of this file');
-    process.exit();
-}
-if (!fs.existsSync(config.certPath)) { // check to make sure cert exists
-    msgLog('fatal', 'File not found');
-    msgLog('fatal', chalk.italic(config.certPath) + ' is not present')
-    msgLog('fatal', 'Change the config to properly define the location of this file');
-    process.exit();
 }
 
 // hash up the management password
@@ -143,9 +125,7 @@ app.get('*', (req, res) => {
     log(reqData);
 });
 
-https.createServer( // https.listen on config port
-    {key: fs.readFileSync(String(config.keyPath)),cert: fs.readFileSync(String(config.certPath))},
-    app).listen(config.port, config.address);
+http.createServer(app).listen(config.port, config.address); // listen on config port and address
 msgLog('info', 'Server listening on ' + chalk.bold(config.address + ':' + config.port));
 // log config status
 if (config.logging == false) {
