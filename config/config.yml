@@ -1,5 +1,5 @@
-# Version 4.0 config
-version: 4.0
+# Version 5.0 config
+version: 5.0
 # Basic server configuration
 port: 443
 address: 127.0.0.1
@@ -9,6 +9,8 @@ managePassword: changeme
 certPath: './config/cert.pem'
 keyPath: './config/key.pem'
 # QoL improvements below this line
+hideIpAddress: true
+hideUserAgent: true
 simplifiedLogging: false
 hideGetFavicon: false
 hideQueryString: true
