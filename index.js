@@ -1,5 +1,5 @@
 // import shiz
-import express, { text } from 'express';
+import express from 'express';
 import https from 'https';
 import chalk from 'chalk';
 import crypto from 'crypto';
@@ -8,12 +8,12 @@ import yaml from 'js-yaml';
 var app = express();
 
 // script version
-var version = 4.0;
+var version = 5.0;
 
-// error catcher 9000 (can check before config is loaded)
+// check if config even fuckin exists
 if (!fs.existsSync('./config/config.yml')) {
-    console.log('Process terminating: File not found');
-    console.log(chalk.italic('./config/config.yml') + ' is not present!')
+    msgLog('fatal', 'File not found')
+    msgLog('fatal', chalk.italic('./config/config.yml') + ' is not present')
     process.exit();
 }
 
@@ -21,30 +21,30 @@ if (!fs.existsSync('./config/config.yml')) {
 console.log('Loading config @ ./config/config.yml');
 var config = yaml.load(fs.readFileSync('./config/config.yml', 'utf8'));
 
-// error catcher 2: electric boogaloo (can only check after config is loaded)
-if (!fs.existsSync(config.certPath) && !fs.existsSync(config.keyPath)) {
-    console.log('Process terminating: Files not found');
-    console.log(chalk.italic(config.keyPath) + ' and ' + chalk.italic(config.certPath) + ' are not present!')
-    console.log('Change the config to properly define the location of these files.');
-    process.exit();
-}
-if (!fs.existsSync(config.keyPath)) { // check to make sure key for https exists
-    console.log('Process terminating: File not found');
-    console.log(chalk.italic(config.keyPath) + ' is not present!')
-    console.log('Change the config to properly define the location of this file.');
-    process.exit();
-}
-if (!fs.existsSync(config.certPath)) { // check to make sure cert for https exists
-    console.log('Process terminating: File not found');
-    console.log(chalk.italic(config.certPath) + ' is not present!')
-    console.log('Change the config to properly define the location of this file.');
-    process.exit();
-}
-if (config.version !== version) { // compare config version and script version
-    console.log('WARNING: Config version does not match script version!');
-}
+if (config.clearConsoleOnStart == true) {console.clear()} // clear console on start if config says so
 
-if (config.clearConsoleOnStart == true) {console.clear();} // clear console if config says so
+// fatal error catcher
+if (config.version !== version) { // compare config version and script version
+    msgLog('warn', 'Config version does not match script version')
+}
+if (!fs.existsSync(config.certPath) && !fs.existsSync(config.keyPath)) {
+    msgLog('fatal', 'Files not found');
+    msgLog('fatal', chalk.italic(config.keyPath) + ' and ' + chalk.italic(config.certPath) + ' are not present!');
+    msgLog('fatal', 'Change the config to properly define the location of these files');
+    process.exit();
+}
+if (!fs.existsSync(config.keyPath)) { // check to make sure key exists
+    msgLog('fatal', 'File not found');
+    msgLog('fatal', chalk.italic(config.keyPath) + ' is not present')
+    msgLog('fatal', 'Change the config to properly define the location of this file');
+    process.exit();
+}
+if (!fs.existsSync(config.certPath)) { // check to make sure cert exists
+    msgLog('fatal', 'File not found');
+    msgLog('fatal', chalk.italic(config.certPath) + ' is not present')
+    msgLog('fatal', 'Change the config to properly define the location of this file');
+    process.exit();
+}
 
 // hash up the management password
 var passHash = crypto.createHash('md5').update(config.managePassword).digest('hex');
@@ -54,27 +54,50 @@ var passHash = crypto.createHash('md5').update(config.managePassword).digest('he
 // address, code, loc, qLoc, agent
 function log(reqData) {
     if (config.logging == false) {return;} // if logging is set to false, don't
-    if (config.hideGetFavicon == true && reqData[2] == '/favicon.ico' || reqData[3].includes("favicon.ico") == true) {return;} 
-    // ^ if hideGetFavicon is set to true and the request is for the favicon, don't
-    if (config.simplifiedLogging == false) {
-        console.log(chalk.inverse(reqData[0]) + ' ' + chalk.yellow(reqData[1]) + ' ' + getLoc(reqData) + ' ' + chalk.italic(chalk.gray('(' + reqData[4] + ')')));
-    } else if (config.simplifiedLogging == true) {
-        console.log(chalk.gray(reqData[0]) + ' ' + getLoc(reqData));
+    if (config.hideGetFavicon == true && reqData[2].includes("/favicon.ico")) {return;} // if hideGetFavicon is set to true and the request is for the favicon, don't
+    if (config.simplifiedLogging == true) {
+        console.log(chalk.gray(getIpAddress(reqData)) + ' ' + getLoc(reqData));
     } else {
-        console.log('WARNING: simplifiedLogging is not true or false! Defaulting to false..');
-        console.log(chalk.inverse(reqData[0]) + ' ' + chalk.yellow(reqData[1]) + ' ' + getLoc(reqData) + ' ' + chalk.italic(chalk.gray('(' + reqData[4] + ')')));
+        console.log(chalk.inverse(getIpAddress(reqData)) + ' ' + chalk.yellow(reqData[1]) + ' ' + getLoc(reqData) + ' ' + chalk.italic(chalk.gray('(' + getUserAgent(reqData) + ')')));
     }
 }
 function getLoc(reqData) { // return value based upon hideQueryString in config
-    if (config.hideQueryString == true) {
-        return reqData[2];
-    } else if (config.hideQueryString == false) {
+    if (config.hideQueryString == false) {
         return reqData[3];
     } else {
-        console.log('WARNING: hideQueryString is not true or false! Defaulting to true..')
         return reqData[2];
     }
 } // does not include query
+function getIpAddress(reqData) {
+    if (config.hideIpAddress == false) {
+        return '';
+    } else {
+        return reqData[0];
+    }
+}
+function getUserAgent(reqData) {
+    if (config.hideUserAgent == false) {
+        return '';
+    } else {
+        return reqData[4];
+    }
+}
+
+// general logging
+function msgLog(type, message) {
+    if (type == 'info') {
+        console.log(chalk.white(chalk.bold('[INFO] ') + message));
+        return;
+    }
+    if (type == 'warn') {
+        console.log(chalk.yellow(chalk.bold('[WARN] ') + message));
+        return;
+    }
+    if (type == 'fatal') {
+        console.log(chalk.red(chalk.bold('[FATAL] ') + message));
+        return;
+    }
+}
 
 // routes
 app.get('/', (req, res) => {
@@ -99,17 +122,17 @@ app.get('/ip', (req, res) => {
 app.get('/manage', (req, res) => {
     if (req.query.pass !== undefined) {
         if (crypto.createHash('md5').update(req.query.pass).digest('hex') == passHash) {
-            res.status(200).setHeader("Content-Type", "text/plain").send('foobar management page');
-            var code = 200;
             // do management stuff
             // this one is just a proof of concept
+            var code = 200;
+            res.sendStatus(code);
         } else {
-            res.sendStatus(400);
             var code = 400;
+            res.sendStatus(code);
         }
     } else {
-        res.sendStatus(400);
-        var code = 400;
+        var code = 401;
+        res.sendStatus(code);
     }
     const reqData = [req.ip, code, req.path, req.originalUrl, req.get('User-Agent')];
     log(reqData);
@@ -120,18 +143,34 @@ app.get('*', (req, res) => {
     log(reqData);
 });
 
-// https.listen on config port
-https.createServer(
+https.createServer( // https.listen on config port
     {key: fs.readFileSync(String(config.keyPath)),cert: fs.readFileSync(String(config.certPath))},
     app).listen(config.port, config.address);
-console.log('Server listening on ' + chalk.inverse(config.address + ':' + config.port));
+msgLog('info', 'Server listening on ' + chalk.bold(config.address + ':' + config.port));
 // log config status
 if (config.logging == false) {
-    console.log('Logging is disabled');
-} else {
+    msgLog('info', 'Logging is ' + chalk.italic('disabled'));
+} else if (config.logging == true) {
     if (config.simplifiedLogging == true) {
-        console.log('Simplified Logging is enabled');
+        msgLog('info', 'Simplified Logging is ' + chalk.italic('enabled'));
     } else {
-        console.log('Logging is enabled');
+        msgLog('info', 'Logging is ' + chalk.italic('enabled'));
     }
+}
+
+// boolean config checks
+if (config.logging !== true && config.logging !== false) {
+    msgLog('warn', 'logging is neither true nor false, defaulting to true..');
+}
+if (config.simplifiedLogging !== true && config.simplifiedLogging !== false) {
+    msgLog('warn', 'simplifiedLogging is neither true nor false, defaulting to false..');
+}
+if (config.hideGetFavicon !== true && config.hideGetFavicon !== false) {
+    msgLog('warn', 'hideGetFavicon is neither true nor false, defaulting to false..');
+}
+if (config.hideQueryString !== true && config.hideQueryString !== false) {
+    msgLog('warn', 'hideQueryString is neither true nor false, defaulting to true..');
+}
+if (config.clearConsoleOnStart !== true && config.clearConsoleOnStart !== false) {
+    msgLog('warn', 'clearConsoleOnStart is neither true nor false, defaulting to true..');
 }
