@@ -37,10 +37,9 @@ Example Request
 ```
 /manage?pass=changeme
 ```
-Example Response
+Example Response (Sends code `200`)
 ```
-foobar management page
+OK
 ```
 
 The default passphrase as defined in the config is `changeme`. \
-The default response as defined in the script is `foobar management page`.
